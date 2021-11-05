@@ -4,43 +4,40 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todo</title>
+    <title>book</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div id="app">
         <div class="form-container">
             <div class="form-group">
-                <input type="number" placeholder="user_id" v-model="user_id">
+                <input type="number" placeholder="author_id" v-model="author_id">
             </div>
             <div class="form-group">
                 <input type="text" placeholder="title" v-model="title">
             </div>
             <div class="form-group">
-                <textarea name="" id="" rows="5" placeholder="description" v-model="description"></textarea>
+                <textarea name="" id="" rows="5" placeholder="body" v-model="body"></textarea>
             </div>
             <div class="form-group">
-                <input type="number" placeholder="status" v-model="status">
-            </div>
-            <div class="form-group">
-                <button type="button" @click="addTodo" v-if="!isHidden">Add Todo</button>
-                <button type="button" @click="updateTodo" v-if="isHidden">Update Todo</button>
+                <button type="button" @click="addbook" v-if="!isHidden">Add book</button>
+                <button type="button" @click="updatebook" v-if="isHidden">Update book</button>
             </div>
         </div>
         <section class="container">
-            <div class="card" v-for="(todo, index) in todos" :key="index"  v-if="todo.status">
+            <div class="card" v-for="(book, index) in books" :key="index">
                 <div class="card-title">
-                    <h1>{{todo.title}}</h1>
+                    <h1>{{book.title}}</h1>
                 </div>
                 <div class="card-body">
-                    <p>{{todo.description}}</p>
+                    <p>{{book.body}}</p>
                 </div>
                 <div class="card-footer">
-                    <p>{{todo.created_at}}</p>
+                    <p>{{book.created_at}}</p>
                 </div>
                 <div class="method">
-                    <button type="button" @click="removeTodo(todo.id)">Remove</button>
-                    <button type="button" @click="editTodo(todo)">Edit</button>
+                    <button type="button" @click="removebook(book.id)">Remove</button>
+                    <button type="button" @click="editbook(book)">Edit</button>
                 </div>
             </div>
         </section>
@@ -53,23 +50,23 @@
 new Vue({
     el: '#app',
     data: {
-        todos: [],
-        user_id: null,
+        books: [],
+        author_id: null,
         title: '',
-        description: '',
-        status: null,
+        body: '',
         id: null,
         updateId: null,
-        isHidden: false
+        isHidden: false,
+        url: "http://localhost:3000/api/books"
     },
     methods: {
-        getTodos(){
-            let url = "http://localhost:3000/api/books";
-            axios.get(url).then(response => {
-                this.todos = response.data.data
+        getbooks(){
+            axios.get(this.url).then(response => {
+                this.books = response.data
+                // console.log(response.data);
             });
         },
-        addTodo(){
+        addbook(){
             // const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
             // const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
             // const current = new Date();
@@ -78,41 +75,38 @@ new Vue({
             // const date = current.getDay()+' '+(days[current.getDay()])+' '+(month[current.getMonth()])+' '+current.getFullYear();
             // const time = hours + ":" + current.getMinutes() + " " + suffix;
             // const dateTime = date +' | '+ time;
-            let newTodo = {user_id: parseInt(this.user_id), title: this.title, description: this.description, status: parseInt(this.status)};
-            let url = "http://localhost:3000/api/books";
-            axios.post(url,newTodo).then(response => {
+            let newbook = {author_id: parseInt(this.author_id), title: this.title, body: this.body};
+        
+            axios.post(this.url,newbook).then(response => {
                 window.location.reload();
             });
             
         },
-        removeTodo(id){
-            let url = "http://localhost:3000/api/books";
-            axios.delete(url+"/"+id).then(response => {
+        removebook(id){
+            
+            axios.delete(this.url+"/"+id).then(response => {
                 window.location.reload();
             });
         },
-        editTodo(todo){
-            this.user_id = todo.user_id;
-            this.title = todo.title;
-            this.description = todo.description;
-            if (todo.status){
-                this.status = 1
-            }
-            this.updateId = todo.id
+        editbook(book){
+            this.author_id = book.author_id;
+            this.title = book.title;
+            this.body = book.body;
+            this.updateId = book.id
             this.isHidden = true
             
         },
-        updateTodo(){
-            let url = "http://localhost:3000/api/books";
-            let body = {user_id: parseInt(this.user_id), title: this.title, description: this.description, status: parseInt(this.status)}
-            axios.put(url+"/"+this.updateId,body).then(response => {
+        updatebook(){
+    
+            let body = {author_id: parseInt(this.author_id), title: this.title, body: this.body}
+            axios.put(this.url+"/"+this.updateId,body).then(response => {
                 window.location.reload();
             });
             this.isHidden = false
         }
     },
     mounted() {
-        this.getTodos();
+        this.getbooks();
     }
 })
 </script>
